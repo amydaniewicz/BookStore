@@ -22,7 +22,7 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_delete_all_entries"
-        android:title="@string/action_delete_all_entries"
+        android:id="@+id/action_delete_inventory"
+        android:title="@string/action_delete_inventory"
         app:showAsAction="never" />
 </menu>

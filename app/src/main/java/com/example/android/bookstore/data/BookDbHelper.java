@@ -8,19 +8,8 @@ import com.example.android.bookstore.data.BookContract.BookEntry;
 
 public class BookDbHelper extends SQLiteOpenHelper {
 
-    public static final int DATABASE_VERSION = 1;
-    public static final String DATABASE_NAME = "Books.db";
-
-    private static final String SQL_CREATE_ENTRIES = "CREATE TABLE " +
-            BookEntry.TABLE_NAME + " (" +
-            BookEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-            BookEntry.COLUMN_PRODUCT_NAME + " TEXT NOT NULL, " +
-            BookEntry.COLUMN_AUTHOR + " TEXT, " +
-            BookEntry.COLUMN_PRICE + " INTEGER NOT NULL, " +
-            BookEntry.COLUMN_QUANTITY + " INTEGER NOT NULL DEFAULT 0, " +
-            BookEntry.COLUMN_SUPPLIER_NAME + " TEXT, " +
-            BookEntry.COLUMN_SUPPLIER_PHONE + " TEXT);";
-
+    private static final int DATABASE_VERSION = 1;
+    private static final String DATABASE_NAME = "bookstore.db";
     private static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " + BookEntry.TABLE_NAME;
 
 
@@ -30,7 +19,16 @@ public class BookDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(SQL_CREATE_ENTRIES);
+        String SQL_CREATE_BOOKS_TABLE = "CREATE TABLE " +
+                BookEntry.TABLE_NAME + " (" +
+                BookEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                BookEntry.COLUMN_BOOK_NAME + " TEXT NOT NULL, " +
+                BookEntry.COLUMN_AUTHOR + " TEXT NOT NULL, " +
+                BookEntry.COLUMN_PRICE + " INTEGER NOT NULL, " +
+                BookEntry.COLUMN_QUANTITY + " INTEGER NOT NULL, " +
+                BookEntry.COLUMN_SUPPLIER_NAME + " TEXT NOT NULL, " +
+                BookEntry.COLUMN_SUPPLIER_PHONE + " TEXT NOT NULL);";
+        db.execSQL(SQL_CREATE_BOOKS_TABLE);
     }
 
     @Override
@@ -38,6 +36,4 @@ public class BookDbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_DELETE_ENTRIES);
         onCreate(db);
     }
-
-
 }
