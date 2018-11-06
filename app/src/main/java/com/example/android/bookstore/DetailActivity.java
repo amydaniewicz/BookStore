@@ -17,7 +17,6 @@ package com.example.android.bookstore;
 
 import android.app.AlertDialog;
 import android.app.LoaderManager;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
@@ -35,6 +34,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.bookstore.data.BookContract.BookEntry;
@@ -55,6 +55,8 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     private EditText mSupplierPhoneEditText;
 
     private boolean mBookHasChanged = false;
+
+    private int quantity = 0;
 
     private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
         @Override
@@ -83,12 +85,12 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         }
 
         // Find all relevant views that we will need to read user input from
-        mBookNameEditText = (EditText) findViewById(R.id.edit_book_name);
-        mAuthorEditText = (EditText) findViewById(R.id.edit_author);
-        mPriceEditText = (EditText) findViewById(R.id.edit_price);
-        mQuantityEditText = (EditText) findViewById(R.id.edit_quantity);
-        mSupplierNameEditText = (EditText) findViewById(R.id.edit_supplier_name);
-        mSupplierPhoneEditText = (EditText) findViewById(R.id.edit_supplier_phone);
+        mBookNameEditText = findViewById(R.id.edit_book_name);
+        mAuthorEditText = findViewById(R.id.edit_author);
+        mPriceEditText = findViewById(R.id.edit_price);
+        mQuantityEditText = findViewById(R.id.edit_quantity);
+        mSupplierNameEditText = findViewById(R.id.edit_supplier_name);
+        mSupplierPhoneEditText = findViewById(R.id.edit_supplier_phone);
 
         mBookNameEditText.setOnTouchListener(mTouchListener);
         mAuthorEditText.setOnTouchListener(mTouchListener);
@@ -124,47 +126,24 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     }
 
     public void incrementQuantity() {
-        Long idLong = Long.valueOf(BookEntry._ID);
-        long id = idLong.longValue();
-        String quantityString = mQuantityEditText.getText().toString().trim();
-        int quantity = Integer.parseInt(quantityString);
-        int increasedQuantity = quantity + 1;
-        ContentValues values = new ContentValues();
-        values.put(BookEntry.COLUMN_QUANTITY, increasedQuantity);
-        Uri updateUri = ContentUris.withAppendedId(BookEntry.CONTENT_URI, id);
-        int rowsUpdated = getContentResolver().update(
-                updateUri,
-                values,
-                null,
-                null);
-        if (rowsUpdated == 0) {
-            Toast.makeText(this, R.string.detail_activity_update_book_failed,
-                    Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, R.string.detail_activity_update_book_successful,
-                    Toast.LENGTH_SHORT).show();
+        if (mCurrentBookUri != null) {
+            String quantityString = mQuantityEditText.getText().toString().trim();
+            quantity = Integer.parseInt(quantityString);
         }
+        quantity += 1;
+        mQuantityEditText.setText(String.valueOf(quantity));
     }
 
     public void decrementQuantity() {
-        String quantityString = mQuantityEditText.getText().toString().trim();
-        int quantity = Integer.parseInt(quantityString);
-        int decreasedQuantity = quantity - 1;
-        ContentValues values = new ContentValues();
-        values.put(BookEntry.COLUMN_QUANTITY, decreasedQuantity);
-        Uri updateUri = ContentUris.withAppendedId(BookEntry.CONTENT_URI, Long.valueOf(BookEntry._ID).longValue());
-        int rowsUpdated = getContentResolver().update(
-                updateUri,
-                values,
-                null,
-                null);
-        if (rowsUpdated == 0) {
-            Toast.makeText(this, R.string.detail_activity_update_book_failed,
-                    Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, R.string.detail_activity_update_book_successful,
-                    Toast.LENGTH_SHORT).show();
+        if (mCurrentBookUri != null) {
+            String quantityString = mQuantityEditText.getText().toString().trim();
+            quantity = Integer.parseInt(quantityString);
         }
+        if (quantity == 0) {
+            return;
+        }
+        quantity -= 1;
+        mQuantityEditText.setText(String.valueOf(quantity));
     }
 
     public void orderBook() {
@@ -174,10 +153,8 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         }
     }
 
-
-
-    //    when user clicks save
-    private void insertBook() {
+    //    when user clicks save checkmark
+    private boolean saveBook() {
         String bookNameString = mBookNameEditText.getText().toString().trim();
         String authorString = mAuthorEditText.getText().toString().trim();
         String priceString = mPriceEditText.getText().toString().trim();
@@ -185,10 +162,16 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         String supplierNameString = mSupplierNameEditText.getText().toString().trim();
         String supplierPhoneString = mSupplierPhoneEditText.getText().toString().trim();
 
-        if (mCurrentBookUri==null && TextUtils.isEmpty(bookNameString) && TextUtils.isEmpty(authorString) &&
-                TextUtils.isEmpty(priceString) && TextUtils.isEmpty(quantityString) && TextUtils.isEmpty(supplierNameString)
-                && TextUtils.isEmpty(supplierPhoneString)) {
-            return;
+        if (!mBookHasChanged && mCurrentBookUri!=null) {
+            NavUtils.navigateUpFromSameTask(DetailActivity.this);
+            return true;
+        }
+
+        if (TextUtils.isEmpty(bookNameString) || TextUtils.isEmpty(authorString) ||
+                TextUtils.isEmpty(priceString) || TextUtils.isEmpty(quantityString) || TextUtils.isEmpty(supplierNameString)
+                || TextUtils.isEmpty(supplierPhoneString)) {
+            Toast.makeText(this, "Please complete all fields before saving.", Toast.LENGTH_SHORT).show();
+            return false;
         }
 
         ContentValues values = new ContentValues();
@@ -197,16 +180,10 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         values.put(BookEntry.COLUMN_SUPPLIER_NAME, supplierNameString);
         values.put(BookEntry.COLUMN_SUPPLIER_PHONE, supplierPhoneString);
 
-        int price = 0;
-        if (!TextUtils.isEmpty(priceString)) {
-            price = Integer.parseInt(priceString);
-        }
+        int price = Integer.parseInt(priceString);
         values.put(BookEntry.COLUMN_PRICE, price);
 
-        int quantity = 0;
-        if (!TextUtils.isEmpty(quantityString)) {
-            quantity = Integer.parseInt(quantityString);
-        }
+        int quantity = Integer.parseInt(quantityString);
         values.put(BookEntry.COLUMN_QUANTITY, quantity);
 
         if (mCurrentBookUri == null) {
@@ -237,6 +214,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
                         Toast.LENGTH_SHORT).show();
             }
         }
+        return true;
     }
 
     @Override
@@ -266,9 +244,13 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_save:
-                insertBook();
-                finish();
-                return true;
+                boolean saved = saveBook();
+                if (saved) {
+                    finish();
+                    return true;
+                }
+                break;
+
             case R.id.action_delete:
                 showDeleteConfirmationDialog();
                 return true;

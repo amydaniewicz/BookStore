@@ -29,8 +29,8 @@ public class BookCursorAdapter extends CursorAdapter {
 
     @Override
     public void bindView(View view, final Context context, final Cursor cursor) {
-        TextView bookNameTextView = (TextView) view.findViewById(R.id.book_name);
-        TextView summaryTextView = (TextView) view.findViewById(R.id.summary);
+        TextView bookNameTextView = view.findViewById(R.id.book_name);
+        TextView summaryTextView = view.findViewById(R.id.summary);
         Button saleButton = (Button) view.findViewById(R.id.sale_button);
 
         int idColumnIndex = cursor.getColumnIndex(BookEntry._ID);
@@ -51,6 +51,11 @@ public class BookCursorAdapter extends CursorAdapter {
         saleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (quantity == 0) {
+                    Toast.makeText(context, R.string.sale_button_below_zero,
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 int reducedQuantity = quantity -1;
                 ContentValues values = new ContentValues();
                 values.put(BookEntry.COLUMN_QUANTITY, reducedQuantity);

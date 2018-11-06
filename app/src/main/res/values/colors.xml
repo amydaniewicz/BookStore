@@ -11,18 +11,21 @@
      limitations under the License.
 -->
 <resources>
-    <!-- The app branding color for the app bar -->
-    <color name="colorPrimary">#F0514B</color>
 
-    <!-- Darker variant for the status bar and contextual app bars -->
-    <color name="colorPrimaryDark">#C0403C</color>
+    <color name="colorPrimary">#e9ac0c</color>
 
-    <!-- Accent color for UI controls like checkboxes and text fields -->
-    <color name="colorAccent">#F0514B</color>
+    <color name="primaryLightColor">#ffdd4d</color>
 
-    <!-- Primary color for the editor -->
-    <color name="editorColorPrimary">#2D3640</color>
+    <color name="colorPrimaryDark">#b27d00</color>
 
-    <!-- Primary dark color for the editor -->
-    <color name="editorColorPrimaryDark">#394450</color>
+    <color name="editorColorPrimary">#494347</color>
+
+    <color name="colorAccent">#746e72</color>
+
+    <color name="editorColorPrimaryDark">#221c20</color>
+
+    <color name="primaryTextColor">#2B3D4D</color>
+
+    <color name="secondaryTextColor">#AEB6BD</color>
+
 </resources>

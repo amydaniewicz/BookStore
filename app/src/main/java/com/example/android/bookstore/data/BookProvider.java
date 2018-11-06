@@ -128,7 +128,25 @@ public class BookProvider extends ContentProvider {
     }
 
     @Override
-    public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
+    public int update(Uri uri, ContentValues contentValues, String selection,
+                      String[] selectionArgs) {
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case BOOKS:
+                return updateBook(uri, contentValues, selection, selectionArgs);
+            case BOOK_ID:
+                // For the BOOK_ID code, extract out the ID from the URI,
+                // so we know which row to update. Selection will be "_id=?" and selection
+                // arguments will be a String array containing the actual ID.
+                selection = BookEntry._ID + "=?";
+                selectionArgs = new String[] { String.valueOf(ContentUris.parseId(uri)) };
+                return updateBook(uri, contentValues, selection, selectionArgs);
+            default:
+                throw new IllegalArgumentException("Update is not supported for " + uri);
+        }
+    }
+
+    public int updateBook(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
         if (values.size() == 0) {return 0;}
 
         if (values.containsKey(BookEntry.COLUMN_BOOK_NAME)) {
