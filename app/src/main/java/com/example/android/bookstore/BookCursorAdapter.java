@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CursorAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,14 +25,16 @@ public class BookCursorAdapter extends CursorAdapter {
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        return LayoutInflater.from(context).inflate(R.layout.list_item, parent, false);
+        View view = LayoutInflater.from(context).inflate(
+                R.layout.list_item, parent, false);
+        ViewHolder viewHolder = new ViewHolder(view);
+        view.setTag(viewHolder);
+        return view;
     }
 
     @Override
     public void bindView(View view, final Context context, final Cursor cursor) {
-        TextView bookNameTextView = view.findViewById(R.id.book_name);
-        TextView summaryTextView = view.findViewById(R.id.summary);
-        Button saleButton = (Button) view.findViewById(R.id.sale_button);
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         int idColumnIndex = cursor.getColumnIndex(BookEntry._ID);
         int bookNameColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_BOOK_NAME);
@@ -45,10 +48,11 @@ public class BookCursorAdapter extends CursorAdapter {
         String quantityString = "QUANTITY: " + cursor.getString(quantityColumnIndex);
         String summaryText = priceString + "  |  " + quantityString;
 
-        bookNameTextView.setText(bookName);
-        summaryTextView.setText(summaryText);
+        viewHolder.bookNameTextView.setText(bookName);
+        viewHolder.summaryTextView.setText(summaryText);
 
-        saleButton.setOnClickListener(new View.OnClickListener() {
+
+        viewHolder.saleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (quantity == 0) {
@@ -74,5 +78,21 @@ public class BookCursorAdapter extends CursorAdapter {
                 }
             }
         });
+    }
+
+    public static class ViewHolder {
+        public final TextView bookNameTextView;
+        public final TextView summaryTextView;
+        public final Button saleButton;
+
+
+        public ViewHolder(View view) {
+            bookNameTextView =
+                    (TextView) view.findViewById(R.id.book_name);
+            summaryTextView =
+                    (TextView) view.findViewById(R.id.summary);
+            saleButton =
+                    (Button) view.findViewById(R.id.sale_button);
+        }
     }
 }
