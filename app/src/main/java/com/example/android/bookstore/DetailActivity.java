@@ -132,6 +132,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         }
         quantity += 1;
         mQuantityEditText.setText(String.valueOf(quantity));
+        mBookHasChanged = true;
     }
 
     public void decrementQuantity() {
@@ -144,6 +145,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         }
         quantity -= 1;
         mQuantityEditText.setText(String.valueOf(quantity));
+        mBookHasChanged = true;
     }
 
     public void orderBook() {
